@@ -1,42 +1,202 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ============================================================
+   Page Layout
+   ============================================================ */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;   /* centers everything vertically */
+  padding: 20px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Header spacing */
+/* .header-container {
+  margin-bottom: 20px;
+} */
+
+/* ============================================================
+   Card Grid
+   ============================================================ */
+.card-grid {
+  display: flex;
+  justify-content: center;   /* center cards horizontally */
+  align-items: center;       /* center cards vertically */
+  flex-wrap: wrap;           /* wrap to multiple rows */
+  gap: 15px;
+  padding-top: 30px;         /* add spacing between floatingcards and header */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+
+/* ============================================================
+   Floating Cards
+   ============================================================ */
+.floating-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.floating-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.floating-card-img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.floating-card-title {
+  margin-top: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Homepage variant */
+.floating-card.default {
+  width: 465px;
+  height: 550px;
+}
+
+.floating-card.default .floating-card-img {
+  height: 400px;
+}
+
+/* RoomsPage variant */
+.floating-card.wide {
+  width: 500px;
+  height: 400px;
+}
+
+.floating-card.wide .floating-card-img {
+  height: 280px;
+}
+
+/* ============================================================
+   Responsive Design
+   ============================================================ */
+@media (max-width: 900px) {
+  .floating-card.default,
+  .floating-card.wide {
+    width: 90%;
+    height: auto;
   }
-  to {
-    transform: rotate(360deg);
+
+  .floating-card.default .floating-card-img,
+  .floating-card.wide .floating-card-img {
+    height: 240px;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 600px) {
+  .card-grid {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .floating-card.default,
+  .floating-card.wide {
+    width: 100%;
+    max-width: 95%;
+    height: auto;
+  }
+
+  .floating-card.default .floating-card-img,
+  .floating-card.wide .floating-card-img {
+    height: 180px;
   }
 }
 
-.card {
-  padding: 2em;
+/* ============================================================
+   Calendar
+   ============================================================ */
+.calendar-container {
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  margin: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+/* ============================================================
+   Header
+   ============================================================ */
+.header {
+  text-align: center;
+  padding: 20px;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.logo-img {
+  max-width: 300px;   /* reasonable size on desktop */
+  width: 100%;        /* scales with container */
+  height: auto;       /* keeps aspect ratio */
+  object-fit: contain;
+}
+
+/* H1 and H2 styling inside Header */
+.logo-container h1 {
+  font-size: 3rem;
+  margin: 15px 0 12px;   /* more space above + below */
+  color: #fff;
+}
+
+.logo-container h2 {
+  font-size: 2rem;
+  margin-top: 10px;      /* space above subtitle */
+  margin-bottom: 0;      /* no extra space below */
+  font-weight: 600;
+  color: #f0f0f0;
+
+  /* Background styling */
+  background-color: rgba(0, 0, 0, 0.5); /* black with opacity */
+  display: inline-block;
+  padding: 8px 28px;     /* slightly bigger padding */
+  border-radius: 20px;
+}
+
+/* ============================================================
+   Responsive Adjustments (Header + Logo)
+   ============================================================ */
+@media (max-width: 900px) {
+  .logo-img {
+    max-width: 200px;
+  }
+
+  .logo-container h1 {
+    font-size: 2rem;
+  }
+
+  .logo-container h2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-img {
+    max-width: 120px;
+  }
+
+  .logo-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .logo-container h2 {
+    font-size: 1rem;
+  }
 }

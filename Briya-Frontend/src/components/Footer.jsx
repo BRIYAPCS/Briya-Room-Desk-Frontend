@@ -2,15 +2,14 @@ export default function Footer() {
   return (
     <footer
       style={{
-        marginTop: "2rem",
-        padding: "10px",
+        marginTop: "5rem",
+        padding: "1rem",
         textAlign: "center",
-        fontSize: "0.9rem",
-        color: "#333",
-        borderTop: "1px solid #ddd",
+        fontSize: "1.2rem",
+        color: "#f0f0f0",
       }}
     >
-      © 2025 | Designed & Engineered by the Briya IT Team | All Rights Reserved.
+      © {new Date().getFullYear()} | Designed & Engineered by the Briya IT Team | All Rights Reserved.
     </footer>
   );
 }
