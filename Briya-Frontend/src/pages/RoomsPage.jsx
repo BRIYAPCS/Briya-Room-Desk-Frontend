@@ -1,3 +1,4 @@
+// src/pages/RoomsPage.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -28,14 +29,18 @@ export default function RoomsPage() {
             key={index}
             image={room.image}
             title={room.name}
-            variant="wide"   // 👈 wide variant for rooms
-            onClick={() => navigate(`/reservations/${siteName}/${room.name}`)}
+            variant="wide" // 👈 wide variant for rooms
+            onClick={() =>
+              navigate(
+                `/reservations/${encodeURIComponent(
+                  siteName
+                )}/${encodeURIComponent(room.name)}`
+              )
+            }
           />
         ))}
 
-        {siteRooms.length === 0 && (
-          <p>No rooms found for {siteName}.</p>
-        )}
+        {siteRooms.length === 0 && <p>No rooms found for {siteName}.</p>}
       </div>
 
       {/* Footer */}
