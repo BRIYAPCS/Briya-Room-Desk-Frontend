@@ -10,8 +10,11 @@ export default function RoomsPage() {
   const { siteName } = useParams();
   const navigate = useNavigate();
 
-  // Find the site based on the URL param
-  const site = sites.find((s) => s.name === siteName);
+  // ✅ Decode siteName for display
+  const decodedSiteName = decodeURIComponent(siteName);
+
+  // Find the site based on the decoded name
+  const site = sites.find((s) => s.name === decodedSiteName);
   const siteRooms = site ? site.rooms : [];
 
   return (
@@ -19,7 +22,7 @@ export default function RoomsPage() {
       {/* Header */}
       <Header
         title="Briya Room Reservation"
-        subtitle={`${siteName} – Choose a Room`}
+        subtitle={`${decodedSiteName} – Choose a Room`}
       />
 
       {/* Floating Cards */}
@@ -29,7 +32,8 @@ export default function RoomsPage() {
             key={index}
             image={room.image}
             title={room.name}
-            variant="wide" // 👈 wide variant for rooms
+            variant="wide"
+            // ✅ Encode room name in URL
             onClick={() =>
               navigate(
                 `/reservations/${encodeURIComponent(
@@ -40,7 +44,7 @@ export default function RoomsPage() {
           />
         ))}
 
-        {siteRooms.length === 0 && <p>No rooms found for {siteName}.</p>}
+        {siteRooms.length === 0 && <p>No rooms found for {decodedSiteName}.</p>}
       </div>
 
       {/* Footer */}

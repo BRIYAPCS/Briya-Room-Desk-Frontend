@@ -1,5 +1,6 @@
 // src/components/EventModal.jsx
 import { useState, useEffect } from "react";
+import DOMPurify from "dompurify"; // ✅ import sanitizer
 import "../App.css";
 
 export default function EventModal({
@@ -8,7 +9,7 @@ export default function EventModal({
   onSave,
   initialData,
   roomName,
-  currentView, // 👈 passed from ReservationsPage
+  currentView,
 }) {
   const isEditing = !!initialData?.id;
 
@@ -22,40 +23,29 @@ export default function EventModal({
   const [description, setDescription] = useState("");
 
   // ============================================================
-  // Weekday Helper (snap Sat/Sun → nearest weekday)
-  // ============================================================
-  const snapToWeekday = (date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-
-    if (day === 6) d.setDate(d.getDate() - 1); // Saturday → Friday
-    if (day === 0) d.setDate(d.getDate() + 1); // Sunday → Monday
-
-    return d;
-  };
-
-  // ============================================================
-  // Load Data When Modal Opens
+  // Load data when editing OR initialize new booking
   // ============================================================
   useEffect(() => {
-    if (initialData?.start && initialData?.end) {
-      // Edit mode
-      setTitle(initialData.title || "");
-      setStart(new Date(initialData.start).toISOString().slice(0, 16));
-      setEnd(new Date(initialData.end).toISOString().slice(0, 16));
+    if (initialData) {
+      setTitle(initialData.title ? decodeURIComponent(initialData.title) : "");
+      setStart(
+        initialData.start
+          ? new Date(initialData.start).toISOString().slice(0, 16)
+          : ""
+      );
+      setEnd(
+        initialData.end
+          ? new Date(initialData.end).toISOString().slice(0, 16)
+          : ""
+      );
       setBookedBy(initialData.bookedBy || "");
       setDescription(initialData.description || "");
     } else {
-      // Create mode
-      let now = new Date();
-      if (currentView === "work_week") {
-        now = snapToWeekday(now); // 👈 snap if weekend
-      }
-
-      const defaultEnd = new Date(now.getTime() + 60 * 60 * 1000); // +1 hour
       setTitle("");
       setBookedBy("");
       setDescription("");
+      const now = new Date();
+      const defaultEnd = new Date(now.getTime() + 60 * 60 * 1000);
       setStart(now.toISOString().slice(0, 16));
       setEnd(defaultEnd.toISOString().slice(0, 16));
     }
@@ -64,32 +54,24 @@ export default function EventModal({
   if (!isOpen) return null;
 
   // ============================================================
-  // Save Handler
+  // Save handler (sanitize fields before saving)
   // ============================================================
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title || !start || !end || !bookedBy) return;
 
-    let startDate = new Date(start);
-    let endDate = new Date(end);
-
-    if (currentView === "work_week") {
-      startDate = snapToWeekday(startDate);
-      endDate = snapToWeekday(endDate);
-    }
-
     onSave({
       ...initialData,
-      title,
-      start: startDate,
-      end: endDate,
-      bookedBy,
-      description,
+      title, // ✅ encoded later in ReservationsPage
+      start: new Date(start),
+      end: new Date(end),
+      bookedBy: DOMPurify.sanitize(bookedBy), // ✅ clean before storing
+      description: DOMPurify.sanitize(description), // ✅ clean before storing
     });
   };
 
   // ============================================================
-  // Render
+  // Render Modal
   // ============================================================
   return (
     <div className="modal-overlay">

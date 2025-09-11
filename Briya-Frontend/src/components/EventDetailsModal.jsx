@@ -1,3 +1,5 @@
+// src/components/EventDetailsModal.jsx
+import DOMPurify from "dompurify"; // ✅ import sanitizer
 import "../App.css";
 
 export default function EventDetailsModal({
@@ -9,69 +11,39 @@ export default function EventDetailsModal({
 }) {
   if (!isOpen || !event) return null;
 
-  // ============================================================
-  // Helpers to format date & time
-  // ============================================================
+  // ✅ Decode title for display
+  const displayTitle = decodeURIComponent(event.title);
 
-  // Format full date (Month Day, Year)
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  // ✅ Sanitize bookedBy and description before rendering
+  const safeBookedBy = DOMPurify.sanitize(event.bookedBy || "—");
+  const safeDescription = DOMPurify.sanitize(event.description || "—");
 
-  // Format time only (12-hour with minutes)
-  const formatTime = (date) =>
-    new Date(date).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-  // Build formatted time string
-  const formatEventTime = (start, end) => {
-    const sameDay = formatDate(start) === formatDate(end);
-
-    if (sameDay) {
-      // Example: Sep 10, 2025 8:00 AM - 3:00 PM
-      return `${formatDate(start)} ${formatTime(start)} - ${formatTime(end)}`;
-    } else {
-      // Example: Sep 10, 2025 8:00 AM - Sep 11, 2025 2:00 PM
-      return `${formatDate(start)} ${formatTime(start)} - ${formatDate(
-        end
-      )} ${formatTime(end)}`;
-    }
-  };
-
-  // ============================================================
-  // Render Modal
-  // ============================================================
   return (
     <div className="modal-overlay">
-      <div className="modal event-details">
+      <div className="modal">
         <h2>Event Details</h2>
 
-        <p className="event-detail"><strong>Title:</strong> {event.title}</p>
-        <p className="event-detail"><strong>Booked By:</strong> {event.bookedBy || "—"}</p>
-        <p className="event-detail">
-          <strong>Time:</strong> {formatEventTime(event.start, event.end)}
+        <p>
+          <strong>Title:</strong> {displayTitle}
         </p>
-        <p className="event-detail">
-          <strong>Description:</strong> {event.description || "—"}
+        <p>
+          <strong>Booked By:</strong> {safeBookedBy}
+        </p>
+        <p>
+          <strong>Time:</strong> {event.start?.toLocaleString()} –{" "}
+          {event.end?.toLocaleString()}
+        </p>
+        <p>
+          <strong>Description:</strong> {safeDescription}
         </p>
 
         <div className="modal-actions">
-          {onEdit && (
-            <button className="btn-confirm" onClick={() => onEdit(event)}>
-              Edit
-            </button>
-          )}
-          {onDelete && (
-            <button className="btn-delete" onClick={() => onDelete(event.id)}>
-              Delete
-            </button>
-          )}
+          <button className="btn-confirm" onClick={() => onEdit(event)}>
+            Edit
+          </button>
+          <button className="btn-delete" onClick={() => onDelete(event.id)}>
+            Delete
+          </button>
           <button className="btn-cancel" onClick={onClose}>
             Close
           </button>

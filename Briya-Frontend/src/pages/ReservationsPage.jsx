@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import EventModal from "../components/EventModal";
 import EventDetailsModal from "../components/EventDetailsModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import DOMPurify from "dompurify"; // ✅ sanitizer
 
 // React Big Calendar imports
 import { Calendar, momentLocalizer } from "react-big-calendar";
@@ -15,10 +16,11 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 const localizer = momentLocalizer(moment);
 
 export default function ReservationsPage() {
-  // ✅ useParams must be inside the component
   const { siteName, roomName } = useParams();
-  const decodedSiteName = decodeURIComponent(siteName || "");
-  const decodedRoomName = decodeURIComponent(roomName || "");
+
+  // ✅ Decode for display
+  const decodedSiteName = decodeURIComponent(siteName);
+  const decodedRoomName = decodeURIComponent(roomName);
 
   // ============================================================
   // State Management
@@ -29,7 +31,6 @@ export default function ReservationsPage() {
   const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Controlled calendar navigation
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState("week");
 
@@ -75,11 +76,18 @@ export default function ReservationsPage() {
   };
 
   const handleSaveEvent = (eventData) => {
+    // ✅ Encode only title
+    const encodedEvent = {
+      ...eventData,
+      title: encodeURIComponent(eventData.title),
+    };
+
     if (eventData.id) {
-      setEvents(events.map((e) => (e.id === eventData.id ? eventData : e)));
+      setEvents(events.map((e) => (e.id === eventData.id ? encodedEvent : e)));
     } else {
-      setEvents([...events, { ...eventData, id: Date.now() }]);
+      setEvents([...events, { ...encodedEvent, id: Date.now() }]);
     }
+
     setModalOpen(false);
     setSelectedEvent(null);
   };
@@ -114,11 +122,13 @@ export default function ReservationsPage() {
   // ============================================================
   return (
     <div className="page-container calendar-page">
+      {/* Header */}
       <Header
         title="Briya Room Reservation"
         subtitle={`${decodedSiteName} → ${decodedRoomName}`}
       />
 
+      {/* Calendar */}
       <div className="calendar-container">
         <Calendar
           localizer={localizer}
@@ -138,12 +148,24 @@ export default function ReservationsPage() {
           }}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
-          tooltipAccessor={(event) => formatEventTime(event.start, event.end)}
-          titleAccessor={(event) =>
-            `${event.title} (${formatTime(event.start)} - ${formatTime(
-              event.end
-            )})`
+          // ✅ Tooltip shows sanitized description or time
+          tooltipAccessor={(event) =>
+            event.description
+              ? DOMPurify.sanitize(event.description)
+              : formatEventTime(event.start, event.end)
           }
+          // ✅ Label inside calendar cell:
+          // decoded title + optional description preview
+          titleAccessor={(event) => {
+            const decodedTitle = decodeURIComponent(event.title);
+            const safeDescription = DOMPurify.sanitize(event.description || "");
+            const preview =
+              safeDescription.length > 20
+                ? safeDescription.slice(0, 20) + "…"
+                : safeDescription;
+
+            return preview ? `${decodedTitle} – ${preview}` : decodedTitle;
+          }}
         />
       </div>
 
