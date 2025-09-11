@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer
       style={{
-        marginTop: "5rem",
+        marginTop: "2rem",
         padding: "1rem",
         textAlign: "center",
         fontSize: "1.2rem",

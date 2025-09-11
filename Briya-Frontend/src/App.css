@@ -13,7 +13,7 @@
 
 /* Header spacing */
 /* .header-container {
-  margin-bottom: 20px;
+  margin-bottom: 1px;
 } */
 
 /* ============================================================
@@ -25,7 +25,7 @@
   align-items: center; /* center cards vertically */
   flex-wrap: wrap; /* wrap to multiple rows */
   gap: 15px;
-  padding-top: 30px; /* add spacing between floatingcards and header */
+  padding-top: 15px; /* add spacing between floatingcards and header */
 }
 
 /* ============================================================
@@ -62,8 +62,8 @@
 
 /* Homepage variant */
 .floating-card.default {
-  width: 350px;
-  height: 500px;
+  width: 300px;
+  height: 450px;
 }
 
 .floating-card.default .floating-card-img {
@@ -72,8 +72,8 @@
 
 /* RoomsPage variant */
 .floating-card.wide {
-  width: 400px;
-  height: 400px;
+  width: 360px;
+  height: 350px;
 }
 
 .floating-card.wide .floating-card-img {
@@ -151,13 +151,13 @@
 /* H1 and H2 styling inside Header */
 .logo-container h1 {
   font-size: 2.5rem;
-  margin: 15px 0 12px; /* more space above + below */
+  margin: 10px 0 10px; /* more space above + below */
   color: #fff;
 }
 
 .logo-container h2 {
   font-size: 1.5rem;
-  margin-top: 10px; /* space above subtitle */
+  margin-top: 5px; /* space above subtitle */
   margin-bottom: 0; /* no extra space below */
   font-weight: 600;
   color: #f0f0f0;
@@ -217,9 +217,6 @@
   backdrop-filter: blur(4px); /* blur background */
 }
 
-/* ============================================================
-   Modal Container
-   ============================================================ */
 /* ============================================================
    Modal Text Styling
    ============================================================ */
