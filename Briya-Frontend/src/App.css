@@ -200,3 +200,162 @@
     font-size: 1rem;
   }
 }
+
+
+/* ============================================================
+   Modal Overlay
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);   /* semi-transparent overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);        /* blur background */
+}
+
+/* ============================================================
+   Modal Container
+   ============================================================ */
+/* ============================================================
+   Modal Text Styling
+   ============================================================ */
+.modal {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+  color: black; /* 👈 ensures all text is visible */
+}
+
+.modal h2,
+.modal p,
+.modal strong {
+  color: black; /* make sure headers & content are visible */
+}
+
+
+.modal h2 {
+  margin-top: 0;
+}
+
+/* ============================================================
+   Event Details Modal Specific
+   ============================================================ */
+/* Event Details Modal content */
+.event-detail {
+  margin: 12px 0; /* spacing between each info row */
+  font-size: 1rem;
+  color: #222;
+}
+
+.modal.event-details {
+  text-align: left; /* left-align text inside */
+}
+
+.modal.event-details h2 {
+  text-align: center; /* keep the header centered */
+  margin-bottom: 15px;
+}
+
+
+
+/* ============================================================
+   Modal Form (Inputs + Labels)
+   ============================================================ */
+.modal-form label {
+  display: block;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  text-align: left;
+  color: black;
+}
+
+.modal-form input,
+.modal-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* ============================================================
+   Modal Actions (Button Container)
+   ============================================================ */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* ============================================================
+   Button Styles
+   ============================================================ */
+
+/* Confirm (Book/Save/Yes/Delete Confirm) */
+.btn-confirm {
+  background: goldenrod;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-confirm:hover {
+  background: darkgoldenrod;
+}
+
+/* Cancel / Close */
+.btn-cancel {
+  background: #555;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-cancel:hover {
+  background: #333;
+}
+
+/* Delete (from EventDetails modal) */
+.btn-delete {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-delete:hover {
+  background: #c0392b;
+  color: white;
+}
+
+/* ============================================================
+   Delete Warning Text
+   ============================================================ */
+.delete-warning {
+  color: red;
+  font-weight: bold;
+  margin: 15px 0;
+  text-align: center;
+}
