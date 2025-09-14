@@ -6,14 +6,16 @@ import Footer from "../components/Footer";
 import EventModal from "../components/EventModal";
 import EventDetailsModal from "../components/EventDetailsModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import DOMPurify from "dompurify"; // ✅ sanitizer
+import DOMPurify from "dompurify";
 
 // React Big Calendar imports
 import { Calendar, momentLocalizer } from "react-big-calendar";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop"; // ✅ correct import
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const localizer = momentLocalizer(moment);
+const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function ReservationsPage() {
   const { siteName, roomName } = useParams();
@@ -34,6 +36,10 @@ export default function ReservationsPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState("week");
 
+  // Allowed booking range
+  const minHour = 8; // 8:00 AM
+  const maxHour = 16.5; // 4:30 PM (16:30)
+
   // ============================================================
   // Helpers: Date & Time Formatting
   // ============================================================
@@ -53,19 +59,23 @@ export default function ReservationsPage() {
 
   const formatEventTime = (start, end) => {
     const sameDay = formatDate(start) === formatDate(end);
-    if (sameDay) {
-      return `${formatDate(start)} ${formatTime(start)} - ${formatTime(end)}`;
-    } else {
-      return `${formatDate(start)} ${formatTime(start)} - ${formatDate(
-        end
-      )} ${formatTime(end)}`;
-    }
+    return sameDay
+      ? `${formatDate(start)} ${formatTime(start)} - ${formatTime(end)}`
+      : `${formatDate(start)} ${formatTime(start)} - ${formatDate(
+          end
+        )} ${formatTime(end)}`;
   };
 
   // ============================================================
   // Event Handlers
   // ============================================================
   const handleSelectSlot = ({ start, end }) => {
+    const startHour = start.getHours() + start.getMinutes() / 60;
+    const endHour = end.getHours() + end.getMinutes() / 60;
+
+    // ⛔ prevent selection outside working hours
+    if (startHour < minHour || endHour > maxHour) return;
+
     setSelectedEvent({ start, end });
     setModalOpen(true);
   };
@@ -76,7 +86,6 @@ export default function ReservationsPage() {
   };
 
   const handleSaveEvent = (eventData) => {
-    // ✅ Encode only title
     const encodedEvent = {
       ...eventData,
       title: encodeURIComponent(eventData.title),
@@ -112,62 +121,114 @@ export default function ReservationsPage() {
   };
 
   // ============================================================
-  // Calendar Navigation
+  // Drag & Drop Handlers (respect hour limits)
   // ============================================================
-  const handleNavigate = (date) => setCurrentDate(date);
-  const handleViewChange = (view) => setCurrentView(view);
+  const moveEvent = ({ event, start, end }) => {
+    const startHour = start.getHours() + start.getMinutes() / 60;
+    const endHour = end.getHours() + end.getMinutes() / 60;
+
+    if (startHour < minHour || endHour > maxHour) return; // ⛔ reject outside range
+
+    const updatedEvents = events.map((e) =>
+      e.id === event.id ? { ...e, start, end } : e
+    );
+    setEvents(updatedEvents);
+  };
+
+  const resizeEvent = ({ event, start, end }) => {
+    const startHour = start.getHours() + start.getMinutes() / 60;
+    const endHour = end.getHours() + end.getMinutes() / 60;
+
+    if (startHour < minHour || endHour > maxHour) return; // ⛔ reject outside range
+
+    const updatedEvents = events.map((e) =>
+      e.id === event.id ? { ...e, start, end } : e
+    );
+    setEvents(updatedEvents);
+  };
+
+  // ============================================================
+  // Overlap Detection
+  // ============================================================
+  const isOverlapping = (event, allEvents) => {
+    return allEvents.some(
+      (e) => e.id !== event.id && e.start < event.end && e.end > event.start
+    );
+  };
 
   // ============================================================
   // Render
   // ============================================================
   return (
     <div className="page-container calendar-page">
-      {/* Header */}
       <Header
         title="Briya Room Reservation"
         subtitle={`${decodedSiteName} → ${decodedRoomName}`}
       />
 
-      {/* Calendar */}
       <div className="calendar-container">
-        <Calendar
+        <DnDCalendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
           selectable
+          resizable
           style={{ height: 500 }}
           date={currentDate}
           view={currentView}
-          onNavigate={handleNavigate}
-          onView={handleViewChange}
+          onNavigate={setCurrentDate}
+          onView={setCurrentView}
           defaultView="week"
           views={["month", "week", "work_week", "day"]}
-          messages={{
-            work_week: "Work Week",
-          }}
+          messages={{ work_week: "Work Week" }}
+          showAllEvents={false}
+          min={new Date(1970, 1, 1, 8, 0, 0)}
+          max={new Date(2030, 1, 1, 16, 30, 0)}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
-          // ✅ Tooltip shows sanitized description or time
           tooltipAccessor={(event) =>
-            event.description
-              ? DOMPurify.sanitize(event.description)
-              : formatEventTime(event.start, event.end)
+            event.sanitizedDescription ||
+            formatEventTime(event.start, event.end)
           }
-          // ✅ Label inside calendar cell:
-          // decoded title + optional description preview
           titleAccessor={(event) => {
-            const decodedTitle = decodeURIComponent(event.title);
-            const safeDescription = DOMPurify.sanitize(event.description || "");
-            const preview =
-              safeDescription.length > 20
-                ? safeDescription.slice(0, 20) + "…"
-                : safeDescription;
-
-            return preview ? `${decodedTitle} – ${preview}` : decodedTitle;
+            const cleanTitle = decodeURIComponent(event.title);
+            const descPreview = event.sanitizedDescription
+              ? ` - ${event.sanitizedDescription.substring(0, 20)}...`
+              : "";
+            return `${cleanTitle}${descPreview}`;
+          }}
+          // ✅ drag & drop + resize handlers
+          onEventDrop={moveEvent}
+          onEventResize={resizeEvent}
+          draggableAccessor={() => true}
+          resizableAccessor={() => true}
+          // ✅ mark restricted slots
+          components={{
+            timeSlotWrapper: ({ children, value }) => {
+              const hour = value.getHours() + value.getMinutes() / 60;
+              const isRestricted = hour < minHour || hour >= maxHour;
+              const className = isRestricted ? "restricted-slot" : "";
+              return <div className={className}>{children}</div>;
+            },
+          }}
+          // ✅ overlapping detection
+          eventPropGetter={(event) => {
+            const overlapping = isOverlapping(event, events);
+            let style = {
+              backgroundColor: "#3174ad",
+              color: "white",
+              borderRadius: "6px",
+              border: "none",
+              padding: "2px 4px",
+              opacity: overlapping ? 0.75 : 1, // 👈 fade overlapping events
+            };
+            return { style };
           }}
         />
       </div>
+
+      <Footer />
 
       {/* Event Create/Edit Modal */}
       <EventModal

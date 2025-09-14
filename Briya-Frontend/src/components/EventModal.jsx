@@ -9,7 +9,7 @@ export default function EventModal({
   onSave,
   initialData,
   roomName,
-  currentView,
+  currentView, // 👈 used for weekday snapping in "work_week"
 }) {
   const isEditing = !!initialData?.id;
 
@@ -27,6 +27,7 @@ export default function EventModal({
   // ============================================================
   useEffect(() => {
     if (initialData) {
+      // Edit mode → load event data
       setTitle(initialData.title ? decodeURIComponent(initialData.title) : "");
       setStart(
         initialData.start
@@ -41,20 +42,29 @@ export default function EventModal({
       setBookedBy(initialData.bookedBy || "");
       setDescription(initialData.description || "");
     } else {
+      // Create mode → fresh defaults
+      let now = new Date();
+
+      // ✅ If user is in "Work Week" view, snap start/end to weekdays
+      if (currentView === "work_week") {
+        const day = now.getDay();
+        if (day === 6) now.setDate(now.getDate() - 1); // Saturday → Friday
+        if (day === 0) now.setDate(now.getDate() + 1); // Sunday → Monday
+      }
+
+      const defaultEnd = new Date(now.getTime() + 60 * 60 * 1000); // +1 hour
+      setStart(now.toISOString().slice(0, 16));
+      setEnd(defaultEnd.toISOString().slice(0, 16));
       setTitle("");
       setBookedBy("");
       setDescription("");
-      const now = new Date();
-      const defaultEnd = new Date(now.getTime() + 60 * 60 * 1000);
-      setStart(now.toISOString().slice(0, 16));
-      setEnd(defaultEnd.toISOString().slice(0, 16));
     }
   }, [initialData, currentView]);
 
   if (!isOpen) return null;
 
   // ============================================================
-  // Save handler (sanitize fields before saving)
+  // Save handler (sanitize bookedBy & description)
   // ============================================================
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,8 +75,8 @@ export default function EventModal({
       title, // ✅ encoded later in ReservationsPage
       start: new Date(start),
       end: new Date(end),
-      bookedBy: DOMPurify.sanitize(bookedBy), // ✅ clean before storing
-      description: DOMPurify.sanitize(description), // ✅ clean before storing
+      bookedBy: DOMPurify.sanitize(bookedBy), // sanitize user input
+      description: DOMPurify.sanitize(description), // sanitize description
     });
   };
 

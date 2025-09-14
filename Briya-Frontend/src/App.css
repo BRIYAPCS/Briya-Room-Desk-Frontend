@@ -351,3 +351,112 @@
   margin: 15px 0;
   text-align: center;
 }
+
+/* ============================================================
+    Ensure event labels wrap nicely
+   ============================================================ */
+.rbc-event {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow: hidden;
+  line-height: 1.2;
+  font-size: 0.85rem;
+}
+
+/* ================================
+   Calendar Styling Tweaks
+   ================================ */
+
+/* General header cell styling (applies to all days) */
+.rbc-header {
+  background-color: #f5f7fa; /* light background */
+  font-weight: 600;
+  font-size: 15px;
+  color: #2c3e50;
+  padding: 10px 8px;
+  line-height: 1.4;
+  min-height: 50px; /* ensures day + date both fit */
+  vertical-align: middle;
+  white-space: normal; /* allows wrapping if needed */
+  text-align: center;
+}
+
+/* Highlight current day header */
+.rbc-header.rbc-today {
+  background-color: #1100ff; /* bright blue */
+  color: white;
+  border-radius: 4px;
+  font-size: 16px; /* slightly larger */
+  font-weight: 700;
+}
+
+/* Hour slots (vertical axis) */
+.rbc-time-gutter .rbc-time-slot {
+  position: relative;
+  background-color: #fafafa;
+  font-weight: 500;
+  font-size: 13px;
+  color: #555;
+}
+
+/* Stronger horizontal lines for timeline grid
+.rbc-time-content > * + * > * {
+  border-top: 1px solid #e0e0e0;
+} */
+
+/* Current time indicator line */
+.rbc-current-time-indicator {
+  height: 3px !important; /* thicker */
+  background-color: #e74c3c !important; /* bright red */
+  box-shadow: 0 0 6px rgba(231, 76, 60, 0.8);
+  z-index: 10;
+}
+
+/* ================================
+   Event Label Styling
+   ================================ */
+
+/* Event block text */
+.rbc-event {
+  white-space: normal !important;
+  word-wrap: break-word;
+  line-height: 1.3;
+  padding: 2px 4px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Prevent long titles/descriptions from overflowing */
+.rbc-event-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* limit to 3 lines */
+  -webkit-box-orient: vertical;
+}
+
+/* Hide the all-day row in week/day views */
+.rbc-allday-cell {
+  display: none !important;
+}
+
+/* ================================
+   Restricted Hours Styling
+   ================================ */
+
+/* Gray out slots outside 8:00 AM – 4:30 PM */
+.rbc-time-view .rbc-timeslot-group.restricted-slot {
+  background-color: #f0f0f0; /* light gray */
+  opacity: 0.6; /* subdued */
+  pointer-events: none; /* prevent interaction */
+}
+
+/* ================================
+   Overlapping Events Styling
+   ================================ */
+
+/* Optional helper class if you want to highlight overlaps */
+.rbc-event.overlapping {
+  opacity: 0.75; /* slightly transparent */
+}
