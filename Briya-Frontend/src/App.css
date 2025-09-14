@@ -460,3 +460,54 @@
 .rbc-event.overlapping {
   opacity: 0.75; /* slightly transparent */
 }
+
+/* ================================
+   Event Resize Handles (Desktop + Touch)
+   ================================ */
+
+/* Base positioning */
+.rbc-event {
+  position: relative;
+  touch-action: none; /* 👈 helps touch devices not scroll when dragging */
+}
+
+/* Handles for mouse users */
+.rbc-event::before,
+.rbc-event::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%; /* handle width */
+  height: 6px; /* thickness of grabber */
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: ns-resize;
+  z-index: 5;
+}
+
+.rbc-event::before {
+  top: -3px; /* top grabber */
+}
+
+.rbc-event::after {
+  bottom: -3px; /* bottom grabber */
+}
+
+/* Show grabbers on hover (desktop) */
+.rbc-event:hover::before,
+.rbc-event:hover::after {
+  opacity: 1;
+}
+
+/* Touch-friendly: keep grabbers visible and bigger */
+@media (hover: none) and (pointer: coarse) {
+  .rbc-event::before,
+  .rbc-event::after {
+    opacity: 1; /* always visible */
+    height: 12px; /* bigger for fingers */
+    background: rgba(0, 0, 0, 0.25); /* darker contrast */
+  }
+}

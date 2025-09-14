@@ -10,12 +10,10 @@ import DOMPurify from "dompurify";
 
 // React Big Calendar imports
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop"; // ✅ correct import
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const localizer = momentLocalizer(moment);
-const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function ReservationsPage() {
   const { siteName, roomName } = useParams();
@@ -37,8 +35,8 @@ export default function ReservationsPage() {
   const [currentView, setCurrentView] = useState("week");
 
   // Allowed booking range
-  const minHour = 8; // 8:00 AM
-  const maxHour = 16.5; // 4:30 PM (16:30)
+  const minHour = 8; // ⏰ 8:00 AM
+  const maxHour = 16.5; // ⏰ 4:30 PM (16:30)
 
   // ============================================================
   // Helpers: Date & Time Formatting
@@ -88,7 +86,7 @@ export default function ReservationsPage() {
   const handleSaveEvent = (eventData) => {
     const encodedEvent = {
       ...eventData,
-      title: encodeURIComponent(eventData.title),
+      title: encodeURIComponent(eventData.title), // ✅ encode title only
     };
 
     if (eventData.id) {
@@ -121,40 +119,20 @@ export default function ReservationsPage() {
   };
 
   // ============================================================
-  // Drag & Drop Handlers (respect hour limits)
-  // ============================================================
-  const moveEvent = ({ event, start, end }) => {
-    const startHour = start.getHours() + start.getMinutes() / 60;
-    const endHour = end.getHours() + end.getMinutes() / 60;
-
-    if (startHour < minHour || endHour > maxHour) return; // ⛔ reject outside range
-
-    const updatedEvents = events.map((e) =>
-      e.id === event.id ? { ...e, start, end } : e
-    );
-    setEvents(updatedEvents);
-  };
-
-  const resizeEvent = ({ event, start, end }) => {
-    const startHour = start.getHours() + start.getMinutes() / 60;
-    const endHour = end.getHours() + end.getMinutes() / 60;
-
-    if (startHour < minHour || endHour > maxHour) return; // ⛔ reject outside range
-
-    const updatedEvents = events.map((e) =>
-      e.id === event.id ? { ...e, start, end } : e
-    );
-    setEvents(updatedEvents);
-  };
-
-  // ============================================================
-  // Overlap Detection
+  // Overlap Detection (semi-transparent effect)
   // ============================================================
   const isOverlapping = (event, allEvents) => {
     return allEvents.some(
       (e) => e.id !== event.id && e.start < event.end && e.end > event.start
     );
   };
+
+  // ============================================================
+  // 🚧 Placeholder for dnd-kit integration (future step)
+  // ============================================================
+  // Here we’ll later add drag + resize behavior using dnd-kit
+  // → It works with both mouse (desktop) and touch (mobile)
+  // For now, resizing/moving is handled manually in modals.
 
   // ============================================================
   // Render
@@ -167,13 +145,12 @@ export default function ReservationsPage() {
       />
 
       <div className="calendar-container">
-        <DnDCalendar
+        <Calendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
           selectable
-          resizable
           style={{ height: 500 }}
           date={currentDate}
           view={currentView}
@@ -198,13 +175,8 @@ export default function ReservationsPage() {
               : "";
             return `${cleanTitle}${descPreview}`;
           }}
-          // ✅ drag & drop + resize handlers
-          onEventDrop={moveEvent}
-          onEventResize={resizeEvent}
-          draggableAccessor={() => true}
-          resizableAccessor={() => true}
-          // ✅ mark restricted slots
           components={{
+            // Gray out restricted hours
             timeSlotWrapper: ({ children, value }) => {
               const hour = value.getHours() + value.getMinutes() / 60;
               const isRestricted = hour < minHour || hour >= maxHour;
@@ -212,7 +184,7 @@ export default function ReservationsPage() {
               return <div className={className}>{children}</div>;
             },
           }}
-          // ✅ overlapping detection
+          // Overlapping events visual
           eventPropGetter={(event) => {
             const overlapping = isOverlapping(event, events);
             let style = {
